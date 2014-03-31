@@ -12,7 +12,7 @@ public class PlayerCycleGamePresenter extends MockGamePresenter {
     }
 
     @Override
-    protected String nextMove(List<Integer> openPositions) {
+    protected String nextMove(List<String> openPositions) {
         return openPositions.get(0).toString();
     }
 
@@ -27,7 +27,7 @@ public class PlayerCycleGamePresenter extends MockGamePresenter {
     }
 
     @Override
-    public String getNextMove(List<Integer> openPositions) {
+    public String getNextMove(List<String> openPositions) {
         if (!"X".equals(lastTurn))
             didNotCycle = true;
         return super.getNextMove(openPositions);

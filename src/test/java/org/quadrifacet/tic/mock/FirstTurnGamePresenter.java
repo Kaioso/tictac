@@ -23,7 +23,7 @@ public class FirstTurnGamePresenter extends MockGamePresenter {
     }
 
     @Override
-    protected String nextMove(List<Integer> openPositions) {
+    protected String nextMove(List<String> openPositions) {
         return "";
     }
 }

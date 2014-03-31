@@ -1,5 +1,6 @@
 package org.quadrifacet.tic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -17,7 +18,11 @@ public class Game {
 
     public void run() {
         presenter.announceGameTitle();
-        playerTurn = presenter.choiceOfPlayerToken(Arrays.asList("X", "O", "Random"));
+        List<String> tokens = Arrays.asList("X", "O");
+        String choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
+        while (!tokens.contains(choice))
+            choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
+        playerTurn = choice;
         runUntilGameOver();
     }
 
@@ -58,13 +63,20 @@ public class Game {
     }
 
     private String getUserMove(GameBoard board) {
-        List<Integer> possibleMoves = board.getOpenPositions();
-        String move = presenter.getNextMove(possibleMoves);
-        while (notNumeric(move)) {
+        List<String> moves = movesAsStrings(board.getOpenPositions());
+        String move = presenter.getNextMove(moves);
+        while (!moves.contains(move)) {
             checkExitCommand(move);
-            move = presenter.tryAgainInvalidNumber(possibleMoves);
+            move = presenter.tryAgainInvalidNumber(moves);
         }
         return move;
+    }
+
+    private List<String> movesAsStrings(List<Integer> possibleMoves) {
+        List<String> movesAsStrings = new ArrayList<String>();
+        for (Integer move : possibleMoves)
+            movesAsStrings.add(move.toString());
+        return movesAsStrings;
     }
 
     private void checkExitCommand(String move) {
@@ -74,13 +86,6 @@ public class Game {
 
     private boolean isExitCommand(String move) {
         return EXIT_COMMAND.matcher(move).matches();
-    }
-
-    private boolean notNumeric(String move) {
-        boolean isNumeric = true;
-        for (char m : move.toCharArray())
-            isNumeric &= Character.isDigit(m);
-        return not(isNumeric);
     }
 
     private boolean not(boolean statement) {

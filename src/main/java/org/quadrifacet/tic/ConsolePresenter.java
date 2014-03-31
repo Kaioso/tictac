@@ -8,20 +8,27 @@ public class ConsolePresenter implements GamePresenter {
 
     @Override
     public void announceGameTitle() {
-        System.out.println("Tic Tac Toe!\n\n");
+        System.out.println("Tic Tac Toe!\n");
     }
 
     @Override
     public String choiceOfPlayerToken(List<String> tokenChoices) {
-        int menuIndex = 1;
+        String display = "Token choices: ";
         for (String choice : tokenChoices)
-            System.out.println(String.valueOf(menuIndex++) + " - " + choice + "\n");
-        System.out.print("Choose which token to play as: ");
-        int input = Integer.parseInt(readFromPlayer());
-        return tokenChoices.get(input - 1);
+            display += choice + ", ";
+        printConsoleScreen(display.substring(0, display.length() - 2));
+        String choice = readFromPlayer("Choose which token to play as: ");
+        while (!tokenChoices.contains(choice))
+            choice = readFromPlayer("I don't recognize that token... Choose from a token indicated above: ").toUpperCase();
+        return choice;
     }
 
-    public String readFromPlayer() {
+    private void printConsoleScreen(String s) {
+        System.out.println(s);
+    }
+
+    public String readFromPlayer(String prompt) {
+        System.out.print(prompt);
         if (System.console() != null) {
             return System.console().readLine();
         }
@@ -31,67 +38,56 @@ public class ConsolePresenter implements GamePresenter {
             reader = new BufferedReader(new InputStreamReader(System.in));
             return reader.readLine();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return "exit";
         }
     }
 
     @Override
     public void displayGameState(String currentTurn, String[] board) {
-        System.out.println("Player turn: " + currentTurn + "\n\n");
+        String display = "Player turn: " + currentTurn + "\n" + boardAsString(board);
+        printConsoleScreen(display);
+    }
+
+    private String boardAsString(String[] board) {
         String display = "";
         for (int i = 0; i < board.length; i++) {
             if (i % 3 == 0)
                 display += "\n";
-            display += board[i];
+            else if (i != 0)
+                display += " ";
+
+            if ("-".equals(board[i]))
+                display += String.valueOf(i + 1);
+            else
+                display += board[i];
         }
         display += "\n";
-        System.out.println(display);
+        return display;
     }
 
     @Override
-    public String getNextMove(List<Integer> openPositions) {
-        String display = "";
-        for (Integer pos : openPositions) {
-            display += pos.toString() + " ";
-        }
-        System.out.println("Select next position:\n");
-        System.out.println(display.trim());
-        return readFromPlayer();
+    public String getNextMove(List<String> openPositions) {
+        return readFromPlayer("Select next position: ");
     }
 
     @Override
-    public String tryAgainInvalidNumber(List<Integer> openPositions) {
-        String display = "";
-        for (Integer pos : openPositions) {
-            display += pos.toString() + " ";
-        }
-        System.out.println("Invalid choice. Please select from the following list or enter 'exit' to quit:\n");
-        System.out.println(display.trim());
-        return readFromPlayer();
+    public String tryAgainInvalidNumber(List<String> openPositions) {
+        return readFromPlayer("Invalid choice. Please select from the following list or enter 'exit' to quit: ");
     }
 
     @Override
     public void gameDraw(String[] board) {
-        System.out.println("Draw!\n");
+        System.out.println("Draw!");
     }
 
     @Override
     public void gameWin(String winner, String[] board) {
-        String display = "";
-        for (int i = 0; i < board.length; i++) {
-            if (i % 3 == 0)
-                display += "\n";
-            display += board[i];
-        }
-        display += "\n\n";
-        System.out.println(display);
-
-        System.out.println("Winner: " + winner + "\n");
+        String display = boardAsString(board);
+        printConsoleScreen(display + "\n" + "Winner: " + winner);
     }
 
     @Override
     public void announceGameTerminated() {
-        System.out.println("Exitting game...");
+        printConsoleScreen("Exitting game...");
     }
 }

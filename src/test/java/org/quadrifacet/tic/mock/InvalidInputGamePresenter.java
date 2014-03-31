@@ -23,7 +23,7 @@ public class InvalidInputGamePresenter extends MockGamePresenter {
     }
 
     @Override
-    protected String nextMove(List<Integer> openPositions) {
+    protected String nextMove(List<String> openPositions) {
         if (invalidCalled)
             return "3";
         else
@@ -36,7 +36,7 @@ public class InvalidInputGamePresenter extends MockGamePresenter {
     }
 
     @Override
-    public String tryAgainInvalidNumber(List<Integer> openPositions) {
+    public String tryAgainInvalidNumber(List<String> openPositions) {
         invalidCalled = true;
         return nextMove(openPositions);
     }

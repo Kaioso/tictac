@@ -2,9 +2,6 @@ package org.quadrifacet.tic;
 
 import java.util.List;
 
-/**
- * Created by Howl on 3/30/2014.
- */
 public interface GamePresenter {
     void announceGameTitle();
 
@@ -12,9 +9,9 @@ public interface GamePresenter {
 
     void displayGameState(String currentTurn, String[] board);
 
-    String getNextMove(List<Integer> openPositions);
+    String getNextMove(List<String> openPositions);
 
-    String tryAgainInvalidNumber(List<Integer> openPositions);
+    String tryAgainInvalidNumber(List<String> openPositions);
 
     void gameDraw(String[] board);
 

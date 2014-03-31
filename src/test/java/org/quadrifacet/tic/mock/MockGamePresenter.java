@@ -24,7 +24,7 @@ public abstract class MockGamePresenter implements GamePresenter {
     }
 
     @Override
-    public String getNextMove(List<Integer> openPositions) {
+    public String getNextMove(List<String> openPositions) {
         if (++turnNumber >= exitAfterTurn())
             return "exit";
         else
@@ -32,7 +32,7 @@ public abstract class MockGamePresenter implements GamePresenter {
     }
 
     @Override
-    public String tryAgainInvalidNumber(List<Integer> openPositions) {
+    public String tryAgainInvalidNumber(List<String> openPositions) {
         return String.valueOf(openPositions.get(0));
     }
 
@@ -60,7 +60,7 @@ public abstract class MockGamePresenter implements GamePresenter {
     }
 
     protected abstract int exitAfterTurn();
-    protected abstract String nextMove(List<Integer> openPositions);
+    protected abstract String nextMove(List<String> openPositions);
     protected abstract String tokenChoice();
 }
 

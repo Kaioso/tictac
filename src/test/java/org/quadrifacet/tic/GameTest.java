@@ -15,7 +15,14 @@ public class GameTest extends TestCase {
     public void testAskPlayerWhatTokenHeWishesToPlay() throws Exception {
         FirstTurnGamePresenter p = new FirstTurnGamePresenter();
         runGame(p);
-        assertEquals(Arrays.asList("X", "O", "Random"), p.playerOptions);
+        assertEquals(Arrays.asList("X", "O"), p.playerOptions);
+    }
+
+    public void testCrossesAndNaughtsOnlyAcceptableChoice() throws Exception {
+        InvalidTokenPresenter p = new InvalidTokenPresenter();
+        runGame(p);
+        assertEquals(p.eventualToken, "O");
+        assertTrue(p.tokenChoiceCalledOnce);
     }
 
     public void testRequestsDisplayOfCurrentTurnAndBoard() throws Exception {

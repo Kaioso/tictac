@@ -44,12 +44,30 @@ public class GameBoardTest extends TestCase {
         game = new GameBoard();
     }
 
-    public void testMove_ErrorsOnInvalidInput() throws Exception {
+    public void testMove_ErrorsOnInputTooLow() throws Exception {
         try {
             GameBoard played = game.play(-1);
-            played = game.play(10);
             fail();
         } catch (GameBoard.InvalidPosition e) {
+            // Good... Good...
+        }
+    }
+
+    public void testMove_ErrorsOnInputTooHigh() throws Exception {
+        try {
+            GameBoard played = game.play(10);
+            fail();
+        } catch (GameBoard.InvalidPosition e) {
+            // Good... Good...
+        }
+    }
+
+    public void testMove_ErrorsOnNonEmptySpace() throws Exception {
+        try {
+            GameBoard played = game.play(9);
+            played = played.play(9);
+            fail();
+        } catch (GameBoard.AlreadyChosen e) {
             // Good... Good...
         }
     }

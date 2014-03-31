@@ -41,6 +41,8 @@ public class GameBoard {
     public GameBoard play(int position) {
         if (position < 1 || position > board.length)
             throw new InvalidPosition();
+        if (!board[position - 1].equals("-"))
+            throw new AlreadyChosen();
         String[] newBoard = boardWithMarkedPosition(position);
         return new GameBoard(newBoard, nextTurn());
     }
@@ -177,4 +179,6 @@ public class GameBoard {
     public static class InvalidBoard extends RuntimeException { }
 
     public static class InvalidPosition extends RuntimeException { }
+
+    public class AlreadyChosen extends RuntimeException { }
 }
