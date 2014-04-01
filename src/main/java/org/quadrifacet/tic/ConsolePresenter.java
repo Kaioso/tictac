@@ -74,7 +74,7 @@ public class ConsolePresenter implements GamePresenter {
 
     @Override
     public String tryAgainInvalidNumber(List<String> openPositions) {
-        return readFromPlayer("Invalid choice. Please select from the following list or enter 'exit' to quit: ");
+        return readFromPlayer("Position is invalid or already chosen.\nPlease select from the list above or type 'exit' to quit: ");
     }
 
     @Override
