@@ -7,7 +7,7 @@ public class FirstTurnGamePresenter extends MockGamePresenter {
     public String firstBoardDisplay = "";
 
     @Override
-    public void displayGameState(String currentTurn, String[] board) {
+    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
         firstTurnDisplay = currentTurn;
         firstBoardDisplay = displayToString(board);
     }

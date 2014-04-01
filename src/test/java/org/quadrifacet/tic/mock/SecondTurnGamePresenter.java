@@ -9,7 +9,7 @@ public class SecondTurnGamePresenter extends MockGamePresenter {
 
 
     @Override
-    public void displayGameState(String currentTurn, String[] board) {
+    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
         if (turnNumber == 1) {
             secondTurnDisplay = currentTurn;
             selectedBoardPosition = Arrays.asList(board).indexOf("X") + 1;

@@ -10,7 +10,7 @@ public class InvalidInputGamePresenter extends MockGamePresenter {
     public int selectedItemAfterRedo = -1;
 
     @Override
-    public void displayGameState(String currentTurn, String[] board) {
+    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
         if (invalidCalled) {
             turnAfterRedo = currentTurn;
             selectedItemAfterRedo = Arrays.asList(board).indexOf("X") + 1;

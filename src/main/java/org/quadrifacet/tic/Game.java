@@ -18,16 +18,12 @@ public class Game {
 
     public void run() {
         presenter.announceGameTitle();
-        List<String> tokens = Arrays.asList("X", "O");
-        String choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
-        while (!tokens.contains(choice))
-            choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
-        playerTurn = choice;
         runUntilGameOver();
     }
 
     private void runUntilGameOver() {
         try {
+            initializeGame();
             loopGame();
         } catch (GameOver e) {
             if (board.isDraw())
@@ -41,21 +37,32 @@ public class Game {
         }
     }
 
+    private void initializeGame() {
+        List<String> tokens = Arrays.asList("X", "O");
+        String choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
+        while (!tokens.contains(choice)) {
+            checkExitCommand(choice);
+            choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
+        }
+        playerTurn = choice;
+    }
+
     private void loopGame() {
         String lastTurn = board.getCurrentTurn();
         while (!board.isDraw() && !board.isWinFor(lastTurn)) {
             lastTurn = board.getCurrentTurn();
-            presenter.displayGameState(board.getCurrentTurn(), board.getBoard());
-
-            String move;
-            if (isPlayerTurn(lastTurn))
-                move = getUserMove(board);
-            else
-                move = String.valueOf(board.bestMove());
-            int moveNumber = Integer.parseInt(move);
+            presenter.displayGameState(board.getCurrentTurn(), board.getBoard(), movesAsStrings(board.getOpenPositions()));
+            int moveNumber = getNextMove(lastTurn);
             board = board.play(moveNumber);
         }
         throw new GameOver();
+    }
+
+    private int getNextMove(String lastTurn) {
+        if (isPlayerTurn(lastTurn))
+            return Integer.parseInt(getUserMove(board));
+        else
+            return board.bestMove();
     }
 
     private boolean isPlayerTurn(String lastTurn) {
@@ -86,10 +93,6 @@ public class Game {
 
     private boolean isExitCommand(String move) {
         return EXIT_COMMAND.matcher(move).matches();
-    }
-
-    private boolean not(boolean statement) {
-        return !statement;
     }
 
     private class GameOver extends RuntimeException {}

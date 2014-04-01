@@ -28,7 +28,7 @@ public class InvalidTokenPresenter extends MockGamePresenter {
     }
 
     @Override
-    public void displayGameState(String currentTurn, String[] board) {
+    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
         eventualToken = currentTurn;
     }
 }

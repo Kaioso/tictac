@@ -2,6 +2,8 @@ package org.quadrifacet.tic;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ConsolePresenter implements GamePresenter {
@@ -17,9 +19,7 @@ public class ConsolePresenter implements GamePresenter {
         for (String choice : tokenChoices)
             display += choice + ", ";
         printConsoleScreen(display.substring(0, display.length() - 2));
-        String choice = readFromPlayer("Choose which token to play as: ");
-        while (!tokenChoices.contains(choice))
-            choice = readFromPlayer("I don't recognize that token... Choose from a token indicated above: ").toUpperCase();
+        String choice = readFromPlayer("Choose which token to play as or 'exit': ").toUpperCase();
         return choice;
     }
 
@@ -43,31 +43,33 @@ public class ConsolePresenter implements GamePresenter {
     }
 
     @Override
-    public void displayGameState(String currentTurn, String[] board) {
-        String display = "Player turn: " + currentTurn + "\n" + boardAsString(board);
+    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
+        String display = "\nPlayer turn: " + currentTurn + "\n" + boardAsString(board, openPositions);
         printConsoleScreen(display);
     }
 
-    private String boardAsString(String[] board) {
+    private String boardAsString(String[] board, List<String> openPositions) {
         String display = "";
-        for (int i = 0; i < board.length; i++) {
-            if (i % 3 == 0)
-                display += "\n";
-            else if (i != 0)
-                display += " ";
-
-            if ("-".equals(board[i]))
-                display += String.valueOf(i + 1);
-            else
-                display += board[i];
+        List<String> boardView = Arrays.asList(board);
+        int j = 1;
+        for (int i = 0; i < board.length; i += 3) {
+            List<String> row = boardView.subList(i, i + 3);
+            String places = "";
+            String positionNumbers = "";
+            for (String item : row) {
+                places += item + " ";
+                String position = String.valueOf(j);
+                positionNumbers += openPositions.contains(position) ? position + " " : "- ";
+                j++;
+            }
+            display += places + " " + positionNumbers + "\n\n";
         }
-        display += "\n";
         return display;
     }
 
     @Override
     public String getNextMove(List<String> openPositions) {
-        return readFromPlayer("Select next position: ");
+        return readFromPlayer("Select next position or 'exit': ");
     }
 
     @Override
@@ -82,7 +84,7 @@ public class ConsolePresenter implements GamePresenter {
 
     @Override
     public void gameWin(String winner, String[] board) {
-        String display = boardAsString(board);
+        String display = "\nGame Over!\n" + boardAsString(board, new ArrayList<String>());
         printConsoleScreen(display + "\n" + "Winner: " + winner);
     }
 

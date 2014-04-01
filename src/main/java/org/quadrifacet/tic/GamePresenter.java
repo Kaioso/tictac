@@ -7,7 +7,7 @@ public interface GamePresenter {
 
     String choiceOfPlayerToken(List<String> tokenChoices);
 
-    void displayGameState(String currentTurn, String[] board);
+    void displayGameState(String currentTurn, String[] board, List<String> openPositions);
 
     String getNextMove(List<String> openPositions);
 
