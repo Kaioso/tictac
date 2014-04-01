@@ -10,7 +10,7 @@ public class ConsolePresenter implements GamePresenter {
 
     @Override
     public void announceGameTitle() {
-        System.out.println("Tic Tac Toe!\n");
+        printConsoleScreen("Tic Tac Toe!\n");
     }
 
     @Override
