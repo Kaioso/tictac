@@ -7,11 +7,13 @@ import java.util.regex.Pattern;
 
 public class Game {
     public static final Pattern EXIT_COMMAND = Pattern.compile("(?i)quit|exit");
-    private GamePresenter presenter;
+    private final GameInputReader reader;
+    private final GamePresenter presenter;
     protected GameBoard board;
     private String playerTurn;
 
-    public Game(GamePresenter presenter) {
+    public Game(GamePresenter presenter, GameInputReader reader) {
+        this.reader = reader;
         this.presenter = presenter;
         board = new GameBoard();
     }
@@ -39,10 +41,10 @@ public class Game {
 
     private void initializeGame() {
         List<String> tokens = Arrays.asList("X", "O");
-        String choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
+        String choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
         while (!tokens.contains(choice)) {
             checkExitCommand(choice);
-            choice = presenter.choiceOfPlayerToken(tokens).toUpperCase();
+            choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
         }
         playerTurn = choice;
     }
@@ -71,10 +73,10 @@ public class Game {
 
     private String getUserMove(GameBoard board) {
         List<String> moves = movesAsStrings(board.getOpenPositions());
-        String move = presenter.getNextMove(moves);
+        String move = reader.getNextMove(moves);
         while (!moves.contains(move)) {
             checkExitCommand(move);
-            move = presenter.tryAgainInvalidNumber(moves);
+            move = reader.tryAgainInvalidNumber(moves);
         }
         return move;
     }

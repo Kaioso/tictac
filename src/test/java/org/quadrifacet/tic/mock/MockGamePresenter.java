@@ -1,10 +1,11 @@
 package org.quadrifacet.tic.mock;
 
+import org.quadrifacet.tic.GameInputReader;
 import org.quadrifacet.tic.GamePresenter;
 
 import java.util.List;
 
-public abstract class MockGamePresenter implements GamePresenter {
+public abstract class MockGamePresenter implements GamePresenter, GameInputReader {
     public boolean announceTitleCalled = false;
     public List<String> playerOptions = null;
     public int turnNumber = 0;
@@ -15,12 +16,6 @@ public abstract class MockGamePresenter implements GamePresenter {
     @Override
     public void announceGameTitle() {
         announceTitleCalled = true;
-    }
-
-    @Override
-    public String choiceOfPlayerToken(List<String> tokenChoices) {
-        playerOptions = tokenChoices;
-        return tokenChoice();
     }
 
     @Override
@@ -42,6 +37,12 @@ public abstract class MockGamePresenter implements GamePresenter {
             display += token + " ";
         display = display.trim();
         return display;
+    }
+
+    @Override
+    public String choiceOfPlayerToken(List<String> tokenChoices) {
+        this.playerOptions = tokenChoices;
+        return tokenChoice();
     }
 
     @Override

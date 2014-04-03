@@ -8,7 +8,10 @@ public class TicTac
 {
     public static void main( String[] args )
     {
-        Game game = new Game(new ConsolePresenter());
+        Console console = new Console();
+        ConsolePresenter p = new ConsolePresenter(console);
+        ConsoleReader r = new ConsoleReader(console);
+        Game game = new Game(p, r);
         game.run();
     }
 }

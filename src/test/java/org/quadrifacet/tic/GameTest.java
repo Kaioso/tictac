@@ -79,13 +79,13 @@ public class GameTest extends TestCase {
         assertFalse(p.didNotCycle);
     }
 
-    private void runGame(GamePresenter presenter) {
-        new Game(presenter).run();
+    private void runGame(MockGamePresenter presenter) {
+        new Game(presenter, presenter).run();
     }
 
     private class RiggedGame extends Game {
-        private RiggedGame(GamePresenter presenter, String boardString) {
-            super(presenter);
+        private RiggedGame(MockGamePresenter presenter, String boardString) {
+            super(presenter, presenter);
             this.board = GameBoard.fromString(boardString, "X");
         }
     }
