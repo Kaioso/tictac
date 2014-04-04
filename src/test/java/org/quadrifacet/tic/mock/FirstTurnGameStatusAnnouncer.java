@@ -2,7 +2,7 @@ package org.quadrifacet.tic.mock;
 
 import java.util.List;
 
-public class FirstTurnGamePresenter extends MockGamePresenter {
+public class FirstTurnGameStatusAnnouncer extends MockGameStatusAnnouncer {
     public String firstTurnDisplay = "";
     public String firstBoardDisplay = "";
 

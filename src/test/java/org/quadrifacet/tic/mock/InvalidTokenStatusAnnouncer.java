@@ -3,7 +3,7 @@ package org.quadrifacet.tic.mock;
 
 import java.util.List;
 
-public class InvalidTokenPresenter extends MockGamePresenter {
+public class InvalidTokenStatusAnnouncer extends MockGameStatusAnnouncer {
     private boolean firstTurnDone = false;
     public boolean tokenChoiceCalledOnce = false;
     public String eventualToken = "";

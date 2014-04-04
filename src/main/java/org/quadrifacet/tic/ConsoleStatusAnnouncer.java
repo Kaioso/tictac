@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ConsolePresenter implements GamePresenter {
+public class ConsoleStatusAnnouncer implements GameStatusAnnouncer {
 
     private final Console console;
 
-    public ConsolePresenter(Console console) {
+    public ConsoleStatusAnnouncer(Console console) {
         this.console = console;
     }
 

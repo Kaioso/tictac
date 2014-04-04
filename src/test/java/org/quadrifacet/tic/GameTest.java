@@ -7,46 +7,46 @@ import java.util.Arrays;
 
 public class GameTest extends TestCase {
     public void testAnnouncesTitleWhenGameStarts() throws Exception {
-        FirstTurnGamePresenter p = new FirstTurnGamePresenter();
+        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
         runGame(p);
         assertTrue(p.announceTitleCalled);
     }
 
     public void testAskPlayerWhatTokenHeWishesToPlay() throws Exception {
-        FirstTurnGamePresenter p = new FirstTurnGamePresenter();
+        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
         runGame(p);
         assertEquals(Arrays.asList("X", "O"), p.playerOptions);
     }
 
     public void testCrossesAndNaughtsOnlyAcceptableChoice() throws Exception {
-        InvalidTokenPresenter p = new InvalidTokenPresenter();
+        InvalidTokenStatusAnnouncer p = new InvalidTokenStatusAnnouncer();
         runGame(p);
         assertEquals("O", p.eventualToken);
         assertTrue(p.tokenChoiceCalledOnce);
     }
 
     public void testRequestsDisplayOfCurrentTurnAndBoard() throws Exception {
-        FirstTurnGamePresenter p = new FirstTurnGamePresenter();
+        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
         runGame(p);
         assertEquals("X", p.firstTurnDisplay);
         assertEquals("- - - - - - - - -", p.firstBoardDisplay);
     }
 
     public void testExitsGameIfAsked() throws Exception {
-        FirstTurnGamePresenter p = new FirstTurnGamePresenter();
+        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
         runGame(p);
         assertEquals(1, p.turnNumber);
     }
 
     public void testGivesListOfPossibleChoicesAndAcceptsChoice() throws Exception {
-        SecondTurnGamePresenter p = new SecondTurnGamePresenter();
+        SecondTurnGameStatusAnnouncer p = new SecondTurnGameStatusAnnouncer();
         runGame(p);
         assertEquals("X", p.secondTurnDisplay);
         assertEquals(4, p.selectedBoardPosition);
     }
 
     public void testInvalidInputAsksAgain() throws Exception {
-        InvalidInputGamePresenter p = new InvalidInputGamePresenter();
+        InvalidInputGameStatusAnnouncer p = new InvalidInputGameStatusAnnouncer();
         runGame(p);
         assertTrue(p.invalidCalled);
         assertEquals("X", p.turnAfterRedo);
@@ -54,46 +54,51 @@ public class GameTest extends TestCase {
     }
 
     public void testAnnouncesTerminated() throws Exception {
-        SecondTurnGamePresenter p = new SecondTurnGamePresenter();
+        SecondTurnGameStatusAnnouncer p = new SecondTurnGameStatusAnnouncer();
         runGame(p);
         assertTrue(p.terminatedCalled);
     }
 
     public void testAnnounceDraw() throws Exception {
-        SecondTurnGamePresenter p = new SecondTurnGamePresenter();
-        RiggedGame g = new RiggedGame(p, "O X O O X O X O X");
+        MockWinAnnouncer a = new MockWinAnnouncer();
+        GamePresentation pr = new GamePresentation(new NullStatusAnnouncer(), new RandomGuesserReader(), a);
+        RiggedGame g = new RiggedGame(pr, "O X O O X O X O X");
         g.run();
-        assertTrue(p.drawCalled);
+
+        assertTrue(a.gameDrawed);
     }
 
     public void testAnnounceGameWinner() throws Exception {
-        SecondTurnGamePresenter p = new SecondTurnGamePresenter();
-        RiggedGame g = new RiggedGame(p, "X X X O X O X O X");
+        MockWinAnnouncer a = new MockWinAnnouncer();
+        GamePresentation pr = new GamePresentation(new NullStatusAnnouncer(), new RandomGuesserReader(), a);
+        RiggedGame g = new RiggedGame(pr, "X X X O X O X O X");
         g.run();
-        assertEquals("X", p.gameWinner);
+
+        assertTrue(a.crossWon);
     }
 
     public void testCyclesThroughPlayerTurns() throws Exception {
-        PlayerCycleGamePresenter p = new PlayerCycleGamePresenter();
+        PlayerCycleGameStatusAnnouncer p = new PlayerCycleGameStatusAnnouncer();
         runGame(p);
         assertFalse(p.didNotCycle);
     }
 
-    private void runGame(MockGamePresenter presenter) {
+    private void runGame(MockGameStatusAnnouncer presenter) {
         new Game(presenter, presenter).run();
     }
 
     private class RiggedGame extends Game {
         private final GameBoard fixedBoard;
-        private RiggedGame(MockGamePresenter presenter, String boardString) {
-            super(presenter, presenter);
+
+        private RiggedGame(GamePresentation pr, String boardString) {
+            super(pr);
             this.fixedBoard = GameBoard.fromString(boardString, "X");
         }
 
         @Override
         protected void initializeGameActors() {
             this.board = this.fixedBoard;
-            this.victory = new VictoryCondition(this.board);
+            this.victory = new VictoryCondition(this.board, this.winAnnouncer);
             this.ai = new TicTacAI(this.board);
         }
     }

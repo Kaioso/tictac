@@ -5,9 +5,30 @@ import java.util.List;
 public class VictoryCondition {
     private final GameBoard gameBoard;
     String winner = "";
+    private GameWinAnnouncer winAnnouncer;
 
     public VictoryCondition(GameBoard gameBoard) {
         this.gameBoard = gameBoard;
+    }
+
+    public VictoryCondition(GameBoard gameBoard, GameWinAnnouncer winAnnouncer) {
+        this.gameBoard = gameBoard;
+        this.winAnnouncer = winAnnouncer;
+    }
+
+    public boolean winConditionsSatisfied() {
+        if (isDraw()) {
+            if (winAnnouncer != null)
+                winAnnouncer.announceDraw(gameBoard.getBoard());
+        } else if (gameBoard.isCrossTurn() && didCrossWin()) {
+            if (winAnnouncer != null)
+                winAnnouncer.announceCrossWon(gameBoard.getBoard());
+        } else if (gameBoard.isNaughtTurn() && didNaughtWin()) {
+            if (winAnnouncer != null)
+                winAnnouncer.announceNaughtWon(gameBoard.getBoard());
+        } else
+            return false;
+        return true;
     }
 
     public boolean didCrossWin() {

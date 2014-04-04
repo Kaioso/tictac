@@ -2,7 +2,7 @@ package org.quadrifacet.tic.mock;
 
 import java.util.List;
 
-public class PlayerCycleGamePresenter extends MockGamePresenter {
+public class PlayerCycleGameStatusAnnouncer extends MockGameStatusAnnouncer {
     public boolean didNotCycle = false;
     private String lastTurn = "";
 

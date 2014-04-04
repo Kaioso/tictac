@@ -3,7 +3,7 @@ package org.quadrifacet.tic.mock;
 import java.util.Arrays;
 import java.util.List;
 
-public class InvalidInputGamePresenter extends MockGamePresenter {
+public class InvalidInputGameStatusAnnouncer extends MockGameStatusAnnouncer {
 
     public boolean invalidCalled = false;
     public String turnAfterRedo = "";

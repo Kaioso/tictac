@@ -8,15 +8,22 @@ import java.util.regex.Pattern;
 public class Game {
     public static final Pattern EXIT_COMMAND = Pattern.compile("(?i)quit|exit");
     private final GameInputReader reader;
-    private final GamePresenter presenter;
+    private final GameStatusAnnouncer presenter;
+    protected GameWinAnnouncer winAnnouncer;
     protected VictoryCondition victory;
     protected TicTacAI ai;
     protected GameBoard board;
     private String playerTurn;
 
-    public Game(GamePresenter presenter, GameInputReader reader) {
+    public Game(GameStatusAnnouncer presenter, GameInputReader reader) {
         this.reader = reader;
         this.presenter = presenter;
+    }
+
+    public Game(GamePresentation pr) {
+        this.reader = pr.getReader();
+        this.presenter = pr.getStatus();
+        this.winAnnouncer = pr.getWinAnnouncer();
     }
 
     public void run() {
@@ -53,12 +60,12 @@ public class Game {
 
     protected void initializeGameActors() {
         this.board = new GameBoard();
-        this.victory = new VictoryCondition(board);
+        this.victory = new VictoryCondition(board, winAnnouncer);
         this.ai = new TicTacAI(board);
     }
 
     private void loopGame() {
-        while (!victory.isDraw() && !isGameWin()) {
+        while (!victory.winConditionsSatisfied()) {
             presenter.displayGameState(board.getCurrentTurn(), board.getBoard(), movesAsStrings(board.getOpenPositions()));
             int moveNumber = getNextMove();
             board.play(moveNumber);
@@ -66,9 +73,7 @@ public class Game {
         throw new GameOver();
     }
 
-    private boolean isGameWin() {
-        return board.isCrossTurn() ? victory.didCrossWin() : victory.didNaughtWin();
-    }
+
 
     private int getNextMove() {
         if (isPlayerTurn())

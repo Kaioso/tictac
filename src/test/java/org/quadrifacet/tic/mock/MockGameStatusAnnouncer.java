@@ -1,11 +1,11 @@
 package org.quadrifacet.tic.mock;
 
 import org.quadrifacet.tic.GameInputReader;
-import org.quadrifacet.tic.GamePresenter;
+import org.quadrifacet.tic.GameStatusAnnouncer;
 
 import java.util.List;
 
-public abstract class MockGamePresenter implements GamePresenter, GameInputReader {
+public abstract class MockGameStatusAnnouncer implements GameStatusAnnouncer, GameInputReader {
     public boolean announceTitleCalled = false;
     public List<String> playerOptions = null;
     public int turnNumber = 0;

@@ -3,7 +3,7 @@ package org.quadrifacet.tic.mock;
 import java.util.Arrays;
 import java.util.List;
 
-public class SecondTurnGamePresenter extends MockGamePresenter {
+public class SecondTurnGameStatusAnnouncer extends MockGameStatusAnnouncer {
     public String secondTurnDisplay = "";
     public int selectedBoardPosition = -1;
 
