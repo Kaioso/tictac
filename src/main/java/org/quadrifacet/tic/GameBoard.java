@@ -6,7 +6,6 @@ public class GameBoard {
     public static final int DIMENSION = 3;
     private String[] board;
     private String currentTurn;
-    private String winner = "";
 
     public static GameBoard fromString(String toBuild, String nextPlayer) {
         if (toBuild == null || nextPlayer == null || toBuild.split(" ").length != 9)
@@ -31,20 +30,25 @@ public class GameBoard {
         this.currentTurn = nextTurn;
     }
 
-    public String getBoardDisplay() {
-        String display = "";
-        for (String item : board)
-            display += item + " ";
-        return display.trim();
-    }
-
-    public GameBoard play(int position) {
+    public void play(int position) {
         if (position < 1 || position > board.length)
             throw new InvalidPosition();
         if (!board[position - 1].equals("-"))
             throw new AlreadyChosen();
-        String[] newBoard = boardWithMarkedPosition(position);
-        return new GameBoard(newBoard, nextTurn());
+        board[position - 1] = currentTurn;
+        currentTurn = nextTurn();
+    }
+
+    private String nextTurn() {
+        return isCrossTurn() ? "O" : "X";
+    }
+
+    public GameBoard predictedPlay(int position) {
+        if (position < 1 || position > board.length)
+            throw new InvalidPosition();
+        if (!board[position - 1].equals("-"))
+            throw new AlreadyChosen();
+        return new GameBoard(boardWithMarkedPosition(position), nextTurn());
     }
 
     private String[] boardWithMarkedPosition(int position) {
@@ -57,12 +61,12 @@ public class GameBoard {
         return Arrays.copyOf(board, board.length);
     }
 
-    private String nextTurn() {
-        return isCrossTurn() ? "O" : "X";
+    public boolean isCrossTurn() {
+        return currentTurn.equals("X");
     }
 
-    private boolean isCrossTurn() {
-        return currentTurn.equals("X");
+    public boolean isNaughtTurn() {
+        return currentTurn.equals("O");
     }
 
     public String getCurrentTurn() {
@@ -81,99 +85,24 @@ public class GameBoard {
         return board[i].equals("-");
     }
 
-    public int score() {
-        return score(1);
+    public List<String[]> rows() {
+        return Arrays.asList(
+                new String[] { board[0], board[1], board[2] },
+                new String[] { board[3], board[4], board[5] },
+                new String[] { board[6], board[7], board[8] });
     }
 
-    public int score(int depth) {
-        if (isWinFor("O"))
-            return -100;
-        else if (isWinFor("X"))
-            return 100;
-        else if (isDraw())
-            return 0;
-        else {
-            List<Integer> results = new ArrayList<Integer>();
-            for (Integer position : getOpenPositions())
-                results.add(play(position).score(depth + 1));
-
-            Integer score = null;
-            for (int i : results)
-                if (score == null)
-                    score = i;
-                else if (isNaughtTurn())
-                    score = Math.min(score, i);
-                else
-                    score = Math.max(score, i);
-
-            return isNaughtTurn() ? score + depth : score - depth;
-        }
+    public List<String[]> columns() {
+        return Arrays.asList(
+                new String[] { board[0], board[3], board[6] },
+                new String[] { board[1], board[4], board[7] },
+                new String[] { board[2], board[5], board[8] });
     }
 
-    public boolean isWinFor(String turn) {
-        if (!winner.isEmpty())
-            return turn.equals(winner);
-
-        boolean onRightDiagonal = true;
-        boolean onLeftDiagonal = true;
-        boolean won = false;
-
-        for (int i = 0; i < DIMENSION; i++) {
-            won |= (isWinningRow(i, turn) || isWinningColumn(i, turn));
-            if (won)
-                break;
-
-            onRightDiagonal &= isOnRightDiagonalThisRow(i, turn);
-            onLeftDiagonal &= isOnLeftDiagonalThisRow(i, turn);
-        }
-
-        won |= (onRightDiagonal || onLeftDiagonal);
-        if (won)
-            winner = turn;
-        return won;
-    }
-
-    private boolean isWinningRow(int i, String turn) {
-        int subStart = DIMENSION * i;
-        for (String col : Arrays.asList(board).subList(subStart, subStart + 3))
-            if (!col.equals(turn)) return false;
-        return true;
-    }
-
-    private boolean isWinningColumn(int i, String turn) {
-        for (int row = i; row < board.length; row += DIMENSION)
-            if (!board[row].equals(turn)) return false;
-        return true;
-    }
-
-    private boolean isOnRightDiagonalThisRow(int i, String turn) {
-        return board[i + (i * DIMENSION)].equals(turn);
-    }
-
-    private boolean isOnLeftDiagonalThisRow(int i, String turn) {
-        return board[board.length - (DIMENSION + i * 2)].equals(turn);
-    }
-
-    public boolean isDraw() {
-        return !isWinFor("X") && !isWinFor("O") && getOpenPositions().isEmpty();
-    }
-
-    private boolean isNaughtTurn() {
-        return currentTurn.equals("O");
-    }
-
-    public int bestMove() {
-        List<int[]> results = new ArrayList<int[]>();
-        for (Integer position : getOpenPositions())
-            results.add(new int[]{position, play(position).score()});
-
-        int[] bestPosition = null;
-        for (int[] result : results)
-            if (bestPosition == null ||
-                    isNaughtTurn() && result[1] < bestPosition[1] ||
-                    isCrossTurn() && result[1] > bestPosition[1])
-                bestPosition = result;
-        return bestPosition[0];
+    public List<String[]> diagonals() {
+        return Arrays.asList(
+                new String[]{board[0], board[4], board[8]},
+                new String[]{board[2], board[4], board[6]});
     }
 
     public static class InvalidBoard extends RuntimeException { }

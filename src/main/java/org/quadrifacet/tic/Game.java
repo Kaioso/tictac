@@ -9,13 +9,14 @@ public class Game {
     public static final Pattern EXIT_COMMAND = Pattern.compile("(?i)quit|exit");
     private final GameInputReader reader;
     private final GamePresenter presenter;
+    protected VictoryCondition victory;
+    protected TicTacAI ai;
     protected GameBoard board;
     private String playerTurn;
 
     public Game(GamePresenter presenter, GameInputReader reader) {
         this.reader = reader;
         this.presenter = presenter;
-        board = new GameBoard();
     }
 
     public void run() {
@@ -28,10 +29,10 @@ public class Game {
             initializeGame();
             loopGame();
         } catch (GameOver e) {
-            if (board.isDraw())
+            if (victory.isDraw())
                 presenter.gameDraw(board.getBoard());
             else {
-                String winner = board.isWinFor("X") ? "X" : "O";
+                String winner = victory.didCrossWin() ? "X" : "O";
                 presenter.gameWin(winner, board.getBoard());
             }
         } catch (GameTerminated e) {
@@ -40,6 +41,7 @@ public class Game {
     }
 
     private void initializeGame() {
+        initializeGameActors();
         List<String> tokens = Arrays.asList("X", "O");
         String choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
         while (!tokens.contains(choice)) {
@@ -49,26 +51,34 @@ public class Game {
         playerTurn = choice;
     }
 
+    protected void initializeGameActors() {
+        this.board = new GameBoard();
+        this.victory = new VictoryCondition(board);
+        this.ai = new TicTacAI(board);
+    }
+
     private void loopGame() {
-        String lastTurn = board.getCurrentTurn();
-        while (!board.isDraw() && !board.isWinFor(lastTurn)) {
-            lastTurn = board.getCurrentTurn();
+        while (!victory.isDraw() && !isGameWin()) {
             presenter.displayGameState(board.getCurrentTurn(), board.getBoard(), movesAsStrings(board.getOpenPositions()));
-            int moveNumber = getNextMove(lastTurn);
-            board = board.play(moveNumber);
+            int moveNumber = getNextMove();
+            board.play(moveNumber);
         }
         throw new GameOver();
     }
 
-    private int getNextMove(String lastTurn) {
-        if (isPlayerTurn(lastTurn))
-            return Integer.parseInt(getUserMove(board));
-        else
-            return board.bestMove();
+    private boolean isGameWin() {
+        return board.isCrossTurn() ? victory.didCrossWin() : victory.didNaughtWin();
     }
 
-    private boolean isPlayerTurn(String lastTurn) {
-        return lastTurn.equals(playerTurn);
+    private int getNextMove() {
+        if (isPlayerTurn())
+            return Integer.parseInt(getUserMove(board));
+        else
+            return ai.bestMove();
+    }
+
+    private boolean isPlayerTurn() {
+        return board.isCrossTurn() && playerTurn.equals("X");
     }
 
     private String getUserMove(GameBoard board) {

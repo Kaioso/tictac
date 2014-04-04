@@ -4,6 +4,7 @@ package org.quadrifacet.tic.mock;
 import java.util.List;
 
 public class InvalidTokenPresenter extends MockGamePresenter {
+    private boolean firstTurnDone = false;
     public boolean tokenChoiceCalledOnce = false;
     public String eventualToken = "";
 
@@ -29,6 +30,9 @@ public class InvalidTokenPresenter extends MockGamePresenter {
 
     @Override
     public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
-        eventualToken = currentTurn;
+        if (firstTurnDone && eventualToken.isEmpty())
+            eventualToken = currentTurn;
+        else
+            firstTurnDone = true;
     }
 }

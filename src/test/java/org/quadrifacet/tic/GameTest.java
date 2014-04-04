@@ -21,7 +21,7 @@ public class GameTest extends TestCase {
     public void testCrossesAndNaughtsOnlyAcceptableChoice() throws Exception {
         InvalidTokenPresenter p = new InvalidTokenPresenter();
         runGame(p);
-        assertEquals(p.eventualToken, "O");
+        assertEquals("O", p.eventualToken);
         assertTrue(p.tokenChoiceCalledOnce);
     }
 
@@ -84,9 +84,17 @@ public class GameTest extends TestCase {
     }
 
     private class RiggedGame extends Game {
+        private final GameBoard fixedBoard;
         private RiggedGame(MockGamePresenter presenter, String boardString) {
             super(presenter, presenter);
-            this.board = GameBoard.fromString(boardString, "X");
+            this.fixedBoard = GameBoard.fromString(boardString, "X");
+        }
+
+        @Override
+        protected void initializeGameActors() {
+            this.board = this.fixedBoard;
+            this.victory = new VictoryCondition(this.board);
+            this.ai = new TicTacAI(this.board);
         }
     }
 }
