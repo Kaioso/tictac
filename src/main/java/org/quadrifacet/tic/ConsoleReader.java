@@ -11,16 +11,6 @@ public class ConsoleReader implements GameInputReader {
         this.console = console;
     }
 
-    @Override
-    public String choiceOfPlayerToken(List<String> tokenChoices) {
-        String display = "Token choices: ";
-        for (String choice : tokenChoices)
-            display += choice + ", ";
-        console.printConsoleScreen(display.substring(0, display.length() - 2));
-        String choice = readFromPlayer("Choose which token to play as or 'exit': ").toUpperCase();
-        return choice;
-    }
-
     public String readFromPlayer(String prompt) {
         System.out.print(prompt);
         if (System.console() != null) {
@@ -44,5 +34,10 @@ public class ConsoleReader implements GameInputReader {
     @Override
     public String tryAgainInvalidNumber(List<String> openPositions) {
         return readFromPlayer("Position is invalid or already chosen.\nPlease select from the list above or type 'exit' to quit: ");
+    }
+
+    @Override
+    public void choosePlayerToken(TokenSelector selector) {
+
     }
 }

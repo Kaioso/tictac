@@ -3,65 +3,65 @@ package org.quadrifacet.tic;
 import junit.framework.TestCase;
 import org.quadrifacet.tic.mock.*;
 
-import java.util.Arrays;
-
 public class GameTest extends TestCase {
     public void testAnnouncesTitleWhenGameStarts() throws Exception {
-        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
-        runGame(p);
-        assertTrue(p.announceTitleCalled);
+        MockStatusAnnouncer status = new MockStatusAnnouncer();
+        GamePresentation pr = new GamePresentation(status, new RandomGuesserReader(), new MockWinAnnouncer());
+        runGame(pr);
+        assertTrue(status.gameTitleCalled);
     }
 
     public void testAskPlayerWhatTokenHeWishesToPlay() throws Exception {
-        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
-        runGame(p);
-        assertEquals(Arrays.asList("X", "O"), p.playerOptions);
-    }
-
-    public void testCrossesAndNaughtsOnlyAcceptableChoice() throws Exception {
-        InvalidTokenStatusAnnouncer p = new InvalidTokenStatusAnnouncer();
-        runGame(p);
-        assertEquals("O", p.eventualToken);
-        assertTrue(p.tokenChoiceCalledOnce);
+        RandomGuesserReader reader = new RandomGuesserReader().chooseNaught();
+        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
+        RiggedGame g = new RiggedGame(pr, "- - - - - - - - -");
+        g.run();
+        assertFalse(g.playerIsCross());
     }
 
     public void testRequestsDisplayOfCurrentTurnAndBoard() throws Exception {
-        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
-        runGame(p);
-        assertEquals("X", p.firstTurnDisplay);
-        assertEquals("- - - - - - - - -", p.firstBoardDisplay);
+        MockStatusAnnouncer status = new MockStatusAnnouncer();
+        GamePresentation pr = new GamePresentation(status, new RandomGuesserReader(), new MockWinAnnouncer());
+        runGame(pr);
+        assertTrue(status.displayGameStateCalled);
+        assertEquals("- - - - - - - - -", status.firstBoardDisplayed);
     }
 
     public void testExitsGameIfAsked() throws Exception {
-        FirstTurnGameStatusAnnouncer p = new FirstTurnGameStatusAnnouncer();
-        runGame(p);
-        assertEquals(1, p.turnNumber);
+        RandomGuesserReader reader = new RandomGuesserReader().exitAfterTurn(1);
+        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
+        runGame(pr);
+        assertEquals(1, reader.playerTurnsCounted);
     }
 
     public void testGivesListOfPossibleChoicesAndAcceptsChoice() throws Exception {
-        SecondTurnGameStatusAnnouncer p = new SecondTurnGameStatusAnnouncer();
-        runGame(p);
-        assertEquals("X", p.secondTurnDisplay);
-        assertEquals(4, p.selectedBoardPosition);
+        RandomGuesserReader reader = new RandomGuesserReader();
+        MockWinAnnouncer winAnnouncer = new MockWinAnnouncer();
+        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, winAnnouncer);
+        runGame(pr);
+        assertTrue(winAnnouncer.crossWon || winAnnouncer.naughtWon || winAnnouncer.gameDrawed);
     }
 
     public void testInvalidInputAsksAgain() throws Exception {
-        InvalidInputGameStatusAnnouncer p = new InvalidInputGameStatusAnnouncer();
-        runGame(p);
-        assertTrue(p.invalidCalled);
-        assertEquals("X", p.turnAfterRedo);
-        assertEquals(3, p.selectedItemAfterRedo);
+        RandomGuesserReader reader = new RandomGuesserReader().guessGarbageAndThrowException();
+        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
+
+        try {
+            runGame(pr);
+            fail();
+        } catch (RandomGuesserReader.AttemptedInvalidNumber e) {}
     }
 
     public void testAnnouncesTerminated() throws Exception {
-        SecondTurnGameStatusAnnouncer p = new SecondTurnGameStatusAnnouncer();
-        runGame(p);
-        assertTrue(p.terminatedCalled);
+        MockStatusAnnouncer status = new MockStatusAnnouncer();
+        GamePresentation pr = new GamePresentation(status, new RandomGuesserReader().exitAfterTurn(1), new MockWinAnnouncer());
+        runGame(pr);
+        assertTrue(status.gameTerminatedCalled);
     }
 
     public void testAnnounceDraw() throws Exception {
         MockWinAnnouncer a = new MockWinAnnouncer();
-        GamePresentation pr = new GamePresentation(new NullStatusAnnouncer(), new RandomGuesserReader(), a);
+        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), new RandomGuesserReader(), a);
         RiggedGame g = new RiggedGame(pr, "O X O O X O X O X");
         g.run();
 
@@ -70,21 +70,15 @@ public class GameTest extends TestCase {
 
     public void testAnnounceGameWinner() throws Exception {
         MockWinAnnouncer a = new MockWinAnnouncer();
-        GamePresentation pr = new GamePresentation(new NullStatusAnnouncer(), new RandomGuesserReader(), a);
+        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), new RandomGuesserReader(), a);
         RiggedGame g = new RiggedGame(pr, "X X X O X O X O X");
         g.run();
 
         assertTrue(a.crossWon);
     }
 
-    public void testCyclesThroughPlayerTurns() throws Exception {
-        PlayerCycleGameStatusAnnouncer p = new PlayerCycleGameStatusAnnouncer();
-        runGame(p);
-        assertFalse(p.didNotCycle);
-    }
-
-    private void runGame(MockGameStatusAnnouncer presenter) {
-        new Game(presenter, presenter).run();
+    private void runGame(GamePresentation presentation) {
+        new Game(presentation).run();
     }
 
     private class RiggedGame extends Game {
@@ -100,6 +94,10 @@ public class GameTest extends TestCase {
             this.board = this.fixedBoard;
             this.victory = new VictoryCondition(this.board, this.winAnnouncer);
             this.ai = new TicTacAI(this.board);
+        }
+
+        public boolean playerIsCross() {
+            return "X".equals(this.playerTurn);
         }
     }
 }

@@ -13,17 +13,17 @@ public class Game {
     protected VictoryCondition victory;
     protected TicTacAI ai;
     protected GameBoard board;
-    private String playerTurn;
+    protected String playerTurn;
 
     public Game(GameStatusAnnouncer presenter, GameInputReader reader) {
         this.reader = reader;
         this.presenter = presenter;
     }
 
-    public Game(GamePresentation pr) {
-        this.reader = pr.getReader();
-        this.presenter = pr.getStatus();
-        this.winAnnouncer = pr.getWinAnnouncer();
+    public Game(GamePresentation presentation) {
+        this.reader = presentation.getReader();
+        this.presenter = presentation.getStatus();
+        this.winAnnouncer = presentation.getWinAnnouncer();
     }
 
     public void run() {
@@ -34,14 +34,7 @@ public class Game {
     private void runUntilGameOver() {
         try {
             initializeGame();
-            loopGame();
-        } catch (GameOver e) {
-            if (victory.isDraw())
-                presenter.gameDraw(board.getBoard());
-            else {
-                String winner = victory.didCrossWin() ? "X" : "O";
-                presenter.gameWin(winner, board.getBoard());
-            }
+//            loopGame();
         } catch (GameTerminated e) {
             presenter.announceGameTerminated();
         }
@@ -49,13 +42,31 @@ public class Game {
 
     private void initializeGame() {
         initializeGameActors();
-        List<String> tokens = Arrays.asList("X", "O");
-        String choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
-        while (!tokens.contains(choice)) {
-            checkExitCommand(choice);
-            choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
-        }
-        playerTurn = choice;
+
+        reader.choosePlayerToken(new TokenSelector() {
+            @Override
+            public void chooseCross() {
+                playerTurn = "X";
+                loopGame();
+            }
+
+            @Override
+            public void chooseNaught() {
+                playerTurn = "O";
+                loopGame();
+            }
+
+            @Override
+            public void exitGame() {
+                throw new GameTerminated();
+            }
+        });
+//        String choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
+//        while (!tokens.contains(choice)) {
+//            checkExitCommand(choice);
+//            choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
+//        }
+//        playerTurn = choice;
     }
 
     protected void initializeGameActors() {
@@ -70,10 +81,7 @@ public class Game {
             int moveNumber = getNextMove();
             board.play(moveNumber);
         }
-        throw new GameOver();
     }
-
-
 
     private int getNextMove() {
         if (isPlayerTurn())
@@ -83,7 +91,8 @@ public class Game {
     }
 
     private boolean isPlayerTurn() {
-        return board.isCrossTurn() && playerTurn.equals("X");
+        return board.isCrossTurn() && playerTurn.equals("X") ||
+                board.isNaughtTurn() && playerTurn.equals("O");
     }
 
     private String getUserMove(GameBoard board) {

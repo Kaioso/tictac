@@ -1,6 +1,5 @@
 package org.quadrifacet.tic;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,17 +39,6 @@ public class ConsoleStatusAnnouncer implements GameStatusAnnouncer {
             display += places + " " + positionNumbers + "\n\n";
         }
         return display;
-    }
-
-    @Override
-    public void gameDraw(String[] board) {
-        console.printConsoleScreen("Draw!");
-    }
-
-    @Override
-    public void gameWin(String winner, String[] board) {
-        String display = "\nGame Over!\n" + boardAsString(board, new ArrayList<String>());
-        console.printConsoleScreen(display + "\n" + "Winner: " + winner);
     }
 
     @Override
