@@ -1,10 +1,12 @@
 package org.quadrifacet.tic.mock;
 
-import org.quadrifacet.tic.GameStatusAnnouncer;
+import org.quadrifacet.tic.BoardPosition;
+import org.quadrifacet.tic.State;
+import org.quadrifacet.tic.StatusAnnouncer;
 
 import java.util.List;
 
-public class MockStatusAnnouncer implements GameStatusAnnouncer {
+public class MockStatusAnnouncer implements StatusAnnouncer {
     public boolean gameTitleCalled = false;
     public boolean displayGameStateCalled = false;
     public boolean gameTerminatedCalled = false;
@@ -18,16 +20,21 @@ public class MockStatusAnnouncer implements GameStatusAnnouncer {
     }
 
     @Override
-    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
+    public void displayGameState(State state) {
         displayGameStateCalled = true;
         if (firstBoardDisplayed.isEmpty())
-            firstBoardDisplayed = boardAsString(board);
+            firstBoardDisplayed = boardAsString(state.getBoard());
     }
 
-    private String boardAsString(String[] board) {
+    private String boardAsString(List<BoardPosition> board) {
         String display = "";
-        for (String item : board) {
-            display += item + " ";
+        for (BoardPosition item : board) {
+            if (item.isCrossPosition())
+                display += "X ";
+            else if (item.isNaughtPosition())
+                display += "O ";
+            else
+                display += "- ";
         }
         return display.trim();
     }

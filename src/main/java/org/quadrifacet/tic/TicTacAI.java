@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TicTacAI {
-    private final GameBoard gameBoard;
+    private final Board gameBoard;
 
-    public TicTacAI(GameBoard gameBoard) {
+    public TicTacAI(Board gameBoard) {
         this.gameBoard = gameBoard;
     }
 
@@ -14,11 +14,11 @@ public class TicTacAI {
         return score(gameBoard, 1);
     }
 
-    public int score(GameBoard board) {
+    public int score(Board board) {
         return score(board, 1);
     }
 
-    public int score(GameBoard board, int depth) {
+    public int score(Board board, int depth) {
         VictoryCondition victoryCondition = new VictoryCondition(board);
         if (victoryCondition.didNaughtWin())
             return -100;

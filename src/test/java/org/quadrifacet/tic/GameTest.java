@@ -6,14 +6,14 @@ import org.quadrifacet.tic.mock.*;
 public class GameTest extends TestCase {
     public void testAnnouncesTitleWhenGameStarts() throws Exception {
         MockStatusAnnouncer status = new MockStatusAnnouncer();
-        GamePresentation pr = new GamePresentation(status, new RandomGuesserReader(), new MockWinAnnouncer());
+        Presentation pr = new Presentation(status, new RandomGuesserReader(), new MockWinAnnouncer());
         runGame(pr);
         assertTrue(status.gameTitleCalled);
     }
 
     public void testAskPlayerWhatTokenHeWishesToPlay() throws Exception {
         RandomGuesserReader reader = new RandomGuesserReader().chooseNaught();
-        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
+        Presentation pr = new Presentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
         RiggedGame g = new RiggedGame(pr, "- - - - - - - - -");
         g.run();
         assertFalse(g.playerIsCross());
@@ -21,7 +21,7 @@ public class GameTest extends TestCase {
 
     public void testRequestsDisplayOfCurrentTurnAndBoard() throws Exception {
         MockStatusAnnouncer status = new MockStatusAnnouncer();
-        GamePresentation pr = new GamePresentation(status, new RandomGuesserReader(), new MockWinAnnouncer());
+        Presentation pr = new Presentation(status, new RandomGuesserReader(), new MockWinAnnouncer());
         runGame(pr);
         assertTrue(status.displayGameStateCalled);
         assertEquals("- - - - - - - - -", status.firstBoardDisplayed);
@@ -29,39 +29,38 @@ public class GameTest extends TestCase {
 
     public void testExitsGameIfAsked() throws Exception {
         RandomGuesserReader reader = new RandomGuesserReader().exitAfterTurn(1);
-        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
+        Presentation pr = new Presentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
         runGame(pr);
         assertEquals(1, reader.playerTurnsCounted);
     }
 
     public void testGivesListOfPossibleChoicesAndAcceptsChoice() throws Exception {
-        RandomGuesserReader reader = new RandomGuesserReader();
         MockWinAnnouncer winAnnouncer = new MockWinAnnouncer();
-        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, winAnnouncer);
+        Presentation pr = new Presentation(new MockStatusAnnouncer(), new RandomGuesserReader(), winAnnouncer);
         runGame(pr);
         assertTrue(winAnnouncer.crossWon || winAnnouncer.naughtWon || winAnnouncer.gameDrawed);
     }
 
     public void testInvalidInputAsksAgain() throws Exception {
         RandomGuesserReader reader = new RandomGuesserReader().guessGarbageAndThrowException();
-        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
+        Presentation pr = new Presentation(new MockStatusAnnouncer(), reader, new MockWinAnnouncer());
 
         try {
             runGame(pr);
             fail();
-        } catch (RandomGuesserReader.AttemptedInvalidNumber e) {}
+        } catch (RandomGuesserReader.AttemptedInvalidMove e) {}
     }
 
     public void testAnnouncesTerminated() throws Exception {
         MockStatusAnnouncer status = new MockStatusAnnouncer();
-        GamePresentation pr = new GamePresentation(status, new RandomGuesserReader().exitAfterTurn(1), new MockWinAnnouncer());
+        Presentation pr = new Presentation(status, new RandomGuesserReader().exitAfterTurn(1), new MockWinAnnouncer());
         runGame(pr);
         assertTrue(status.gameTerminatedCalled);
     }
 
     public void testAnnounceDraw() throws Exception {
         MockWinAnnouncer a = new MockWinAnnouncer();
-        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), new RandomGuesserReader(), a);
+        Presentation pr = new Presentation(new MockStatusAnnouncer(), new RandomGuesserReader(), a);
         RiggedGame g = new RiggedGame(pr, "O X O O X O X O X");
         g.run();
 
@@ -70,23 +69,23 @@ public class GameTest extends TestCase {
 
     public void testAnnounceGameWinner() throws Exception {
         MockWinAnnouncer a = new MockWinAnnouncer();
-        GamePresentation pr = new GamePresentation(new MockStatusAnnouncer(), new RandomGuesserReader(), a);
+        Presentation pr = new Presentation(new MockStatusAnnouncer(), new RandomGuesserReader(), a);
         RiggedGame g = new RiggedGame(pr, "X X X O X O X O X");
         g.run();
 
         assertTrue(a.crossWon);
     }
 
-    private void runGame(GamePresentation presentation) {
+    private void runGame(Presentation presentation) {
         new Game(presentation).run();
     }
 
     private class RiggedGame extends Game {
-        private final GameBoard fixedBoard;
+        private final Board fixedBoard;
 
-        private RiggedGame(GamePresentation pr, String boardString) {
+        private RiggedGame(Presentation pr, String boardString) {
             super(pr);
-            this.fixedBoard = GameBoard.fromString(boardString, "X");
+            this.fixedBoard = Board.fromString(boardString, "X");
         }
 
         @Override

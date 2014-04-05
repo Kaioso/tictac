@@ -1,26 +1,23 @@
 package org.quadrifacet.tic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class Game {
-    public static final Pattern EXIT_COMMAND = Pattern.compile("(?i)quit|exit");
-    private final GameInputReader reader;
-    private final GameStatusAnnouncer presenter;
-    protected GameWinAnnouncer winAnnouncer;
+    private final InputReader reader;
+    private final StatusAnnouncer presenter;
+    protected WinAnnouncer winAnnouncer;
     protected VictoryCondition victory;
     protected TicTacAI ai;
-    protected GameBoard board;
+    protected Board board;
     protected String playerTurn;
 
-    public Game(GameStatusAnnouncer presenter, GameInputReader reader) {
+    public Game(StatusAnnouncer presenter, InputReader reader) {
         this.reader = reader;
         this.presenter = presenter;
     }
 
-    public Game(GamePresentation presentation) {
+    public Game(Presentation presentation) {
         this.reader = presentation.getReader();
         this.presenter = presentation.getStatus();
         this.winAnnouncer = presentation.getWinAnnouncer();
@@ -34,7 +31,6 @@ public class Game {
     private void runUntilGameOver() {
         try {
             initializeGame();
-//            loopGame();
         } catch (GameTerminated e) {
             presenter.announceGameTerminated();
         }
@@ -61,33 +57,37 @@ public class Game {
                 throw new GameTerminated();
             }
         });
-//        String choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
-//        while (!tokens.contains(choice)) {
-//            checkExitCommand(choice);
-//            choice = reader.choiceOfPlayerToken(tokens).toUpperCase();
-//        }
-//        playerTurn = choice;
     }
 
     protected void initializeGameActors() {
-        this.board = new GameBoard();
+        this.board = new Board();
         this.victory = new VictoryCondition(board, winAnnouncer);
         this.ai = new TicTacAI(board);
     }
 
     private void loopGame() {
         while (!victory.winConditionsSatisfied()) {
-            presenter.displayGameState(board.getCurrentTurn(), board.getBoard(), movesAsStrings(board.getOpenPositions()));
-            int moveNumber = getNextMove();
-            board.play(moveNumber);
+            presenter.displayGameState(getState());
+            IndexedBoardPosition move = getNextMove();
+            board.play(move.getIndex());
         }
     }
 
-    private int getNextMove() {
+    private State getState() {
+        LifetimeController controller = new LifetimeController() {
+            @Override
+            public void exitGame() {
+                throw new GameTerminated();
+            }
+        };
+        return new State(board.isCrossTurn(), board.getBoard(), controller);
+    }
+
+    private IndexedBoardPosition getNextMove() {
         if (isPlayerTurn())
-            return Integer.parseInt(getUserMove(board));
+            return getUserMove(board);
         else
-            return ai.bestMove();
+            return new IndexedBoardPosition(ai.bestMove());
     }
 
     private boolean isPlayerTurn() {
@@ -95,32 +95,22 @@ public class Game {
                 board.isNaughtTurn() && playerTurn.equals("O");
     }
 
-    private String getUserMove(GameBoard board) {
-        List<String> moves = movesAsStrings(board.getOpenPositions());
-        String move = reader.getNextMove(moves);
-        while (!moves.contains(move)) {
-            checkExitCommand(move);
-            move = reader.tryAgainInvalidNumber(moves);
+    private IndexedBoardPosition getUserMove(Board board) {
+        State state = getState();
+        List<BoardPosition> openMoves = state.getOpenPositions();
+        IndexedBoardPosition move = (IndexedBoardPosition) reader.getNextPosition(state);
+        while (!openMoves.contains(move)) {
+            move = (IndexedBoardPosition) reader.tryAgainInvalidMove(getState());
         }
         return move;
     }
 
-    private List<String> movesAsStrings(List<Integer> possibleMoves) {
-        List<String> movesAsStrings = new ArrayList<String>();
+    private List<BoardPosition> movesAsBoardPositions(List<Integer> possibleMoves) {
+        List<BoardPosition> moves = new ArrayList<BoardPosition>();
         for (Integer move : possibleMoves)
-            movesAsStrings.add(move.toString());
-        return movesAsStrings;
+            moves.add(new IndexedBoardPosition(move));
+        return moves;
     }
 
-    private void checkExitCommand(String move) {
-        if (isExitCommand(move))
-            throw new GameTerminated();
-    }
-
-    private boolean isExitCommand(String move) {
-        return EXIT_COMMAND.matcher(move).matches();
-    }
-
-    private class GameOver extends RuntimeException {}
     private class GameTerminated extends RuntimeException {}
 }

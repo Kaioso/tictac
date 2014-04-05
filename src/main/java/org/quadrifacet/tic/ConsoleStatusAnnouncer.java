@@ -1,9 +1,8 @@
 package org.quadrifacet.tic;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class ConsoleStatusAnnouncer implements GameStatusAnnouncer {
+public class ConsoleStatusAnnouncer implements StatusAnnouncer {
 
     private final Console console;
 
@@ -17,32 +16,40 @@ public class ConsoleStatusAnnouncer implements GameStatusAnnouncer {
     }
 
     @Override
-    public void displayGameState(String currentTurn, String[] board, List<String> openPositions) {
-        String display = "\nPlayer turn: " + currentTurn + "\n" + boardAsString(board, openPositions);
+    public void displayGameState(State state) {
+        String display = "\nPlayer turn: " + currentTurn(state) + "\n" + boardAsString(state.getBoard());
         console.printConsoleScreen(display);
     }
 
-    private String boardAsString(String[] board, List<String> openPositions) {
+    private String currentTurn(State state) {
+        return state.isCrossTurn() ? "X" : "O";
+    }
+
+    private String boardAsString(List<BoardPosition> board) {
         String display = "";
-        List<String> boardView = Arrays.asList(board);
         int j = 1;
-        for (int i = 0; i < board.length; i += 3) {
-            List<String> row = boardView.subList(i, i + 3);
+        for (int i = 0; i < board.size(); i += 3) {
+            List<BoardPosition> row = board.subList(i, i + 3);
             String places = "";
             String positionNumbers = "";
-            for (String item : row) {
-                places += item + " ";
-                String position = String.valueOf(j);
-                positionNumbers += openPositions.contains(position) ? position + " " : "- ";
-                j++;
+            for (BoardPosition item : row) {
+                places += positionAsString(item) + " ";
+                positionNumbers += item.isEmptyPosition() ? String.valueOf(j) + " " : "- ";
             }
             display += places + " " + positionNumbers + "\n\n";
         }
         return display;
     }
 
+    private String positionAsString(BoardPosition item) {
+        if (item.isEmptyPosition())
+            return "-";
+        else
+            return item.isCrossPosition() ? "X" : "O";
+    }
+
     @Override
     public void announceGameTerminated() {
-        console.printConsoleScreen("Exitting game...");
+        console.printConsoleScreen("Exiting game...");
     }
 }

@@ -2,9 +2,8 @@ package org.quadrifacet.tic;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.List;
 
-public class ConsoleReader implements GameInputReader {
+public class ConsoleReader implements InputReader {
     private final Console console;
 
     public ConsoleReader(Console console) {
@@ -27,13 +26,13 @@ public class ConsoleReader implements GameInputReader {
     }
 
     @Override
-    public String getNextMove(List<String> openPositions) {
-        return readFromPlayer("Select next position or 'exit': ");
+    public BoardPosition getNextPosition(State state) {
+        return null;
     }
 
     @Override
-    public String tryAgainInvalidNumber(List<String> openPositions) {
-        return readFromPlayer("Position is invalid or already chosen.\nPlease select from the list above or type 'exit' to quit: ");
+    public BoardPosition tryAgainInvalidMove(State state) {
+        return null;
     }
 
     @Override

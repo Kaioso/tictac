@@ -1,12 +1,10 @@
 package org.quadrifacet.tic.mock;
 
-import org.quadrifacet.tic.GameInputReader;
-import org.quadrifacet.tic.TokenSelector;
+import org.quadrifacet.tic.*;
 
-import java.util.List;
 import java.util.Random;
 
-public class RandomGuesserReader implements GameInputReader {
+public class RandomGuesserReader implements InputReader {
     private Random r = new Random();
     private int turnToExitAfter = -1;
     private boolean tryGarbage = false;
@@ -23,19 +21,19 @@ public class RandomGuesserReader implements GameInputReader {
     }
 
     @Override
-    public String getNextMove(List<String> openPositions) {
+    public BoardPosition getNextPosition(State state) {
         playerTurnsCounted++;
         if (turnToExitAfter > -1 && turnToExitAfter-- > 0)
-            return "exit";
+            state.getController().exitGame();
         else if (tryGarbage)
-            return "sdfj230fmc";
-        else
-            return openPositions.get(r.nextInt(openPositions.size()));
+            return null;
+
+        return state.getOpenPositions().get(r.nextInt(state.getOpenPositions().size()));
     }
 
     @Override
-    public String tryAgainInvalidNumber(List<String> openPositions) {
-        throw new AttemptedInvalidNumber();
+    public BoardPosition tryAgainInvalidMove(State state) {
+        throw new AttemptedInvalidMove();
     }
 
     public RandomGuesserReader exitAfterTurn(int turn) {
@@ -53,6 +51,5 @@ public class RandomGuesserReader implements GameInputReader {
         return this;
     }
 
-    public static class AttemptedInvalidNumber extends RuntimeException {
-    }
+    public static class AttemptedInvalidMove extends RuntimeException { }
 }

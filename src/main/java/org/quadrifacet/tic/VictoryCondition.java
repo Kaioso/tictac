@@ -3,15 +3,15 @@ package org.quadrifacet.tic;
 import java.util.List;
 
 public class VictoryCondition {
-    private final GameBoard gameBoard;
+    private final Board gameBoard;
     String winner = "";
-    private GameWinAnnouncer winAnnouncer;
+    private WinAnnouncer winAnnouncer;
 
-    public VictoryCondition(GameBoard gameBoard) {
+    public VictoryCondition(Board gameBoard) {
         this.gameBoard = gameBoard;
     }
 
-    public VictoryCondition(GameBoard gameBoard, GameWinAnnouncer winAnnouncer) {
+    public VictoryCondition(Board gameBoard, WinAnnouncer winAnnouncer) {
         this.gameBoard = gameBoard;
         this.winAnnouncer = winAnnouncer;
     }
@@ -51,11 +51,11 @@ public class VictoryCondition {
         List<String[]> currentRows = gameBoard.rows();
         List<String[]> currentColumns = gameBoard.columns();
         List<String[]> currentDiagonals = gameBoard.diagonals();
-        for (int i = 0; i < GameBoard.DIMENSION; i++) {
+        for (int i = 0; i < Board.DIMENSION; i++) {
             boolean row = true;
             boolean col = true;
             boolean diag = true;
-            for (int c = 0; c < GameBoard.DIMENSION; c++) {
+            for (int c = 0; c < Board.DIMENSION; c++) {
                 row &= turn.equals(currentRows.get(i)[c]);
                 col &= turn.equals(currentColumns.get(i)[c]);
                 if (i < currentDiagonals.size())
