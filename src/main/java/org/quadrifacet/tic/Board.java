@@ -31,20 +31,24 @@ public class Board {
     }
 
     public void play(int position) {
-        if (position < 1 || position > board.length)
+        if (isValidPosition(position))
             throw new InvalidPosition();
-        if (!positionIsEmpty(position - 1))
+        if (!positionIsEmpty(position))
             throw new AlreadyChosen();
-        board[position - 1] = currentTurn;
+        board[position] = currentTurn;
         currentTurn = nextTurn();
     }
 
     public Board predictedPlay(int position) {
-        if (position < 1 || position > board.length)
+        if (isValidPosition(position))
             throw new InvalidPosition();
-        if (!positionIsEmpty(position - 1))
+        if (!positionIsEmpty(position))
             throw new AlreadyChosen();
         return new Board(boardWithMarkedPosition(position), nextTurn());
+    }
+
+    private boolean isValidPosition(int position) {
+        return position < 0 || position > board.length;
     }
 
     private boolean positionIsEmpty(int i) {
@@ -57,14 +61,14 @@ public class Board {
 
     private String[] boardWithMarkedPosition(int position) {
         String[] newBoard = copyOfBoard();
-        newBoard[position - 1] = currentTurn;
+        newBoard[position] = currentTurn;
         return newBoard;
     }
 
     public List<BoardPosition> getBoard() {
         List<BoardPosition> positions = new ArrayList<BoardPosition>();
         for (int i = 0; i < board.length; i++)
-            positions.add(new IndexedStringPosition(i + 1, board[i]));
+            positions.add(new IndexedStringPosition(i, board[i]));
         return positions;
     }
 
@@ -84,7 +88,7 @@ public class Board {
         List<Integer> positions = new ArrayList<Integer>();
         for (int i = 0; i < board.length; i++)
             if (positionIsEmpty(i))
-                positions.add(i + 1);
+                positions.add(i);
         return positions;
     }
 

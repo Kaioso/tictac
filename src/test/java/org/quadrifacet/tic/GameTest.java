@@ -91,7 +91,7 @@ public class GameTest extends TestCase {
         @Override
         protected void initializeGameActors() {
             this.board = this.fixedBoard;
-            this.victory = new VictoryCondition(this.board, this.winAnnouncer);
+            this.victory = new VictoryCondition();
             this.ai = new TicTacAI(this.board);
         }
 

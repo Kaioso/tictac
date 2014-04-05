@@ -1,20 +1,24 @@
 package org.quadrifacet.tic;
 
-import java.util.List;
-
 public class ConsoleWinAnnouncer implements WinAnnouncer {
-    @Override
-    public void announceCrossWon(List<BoardPosition> board) {
+    private Console console;
 
+    public ConsoleWinAnnouncer(Console console) {
+        this.console = console;
     }
 
     @Override
-    public void announceNaughtWon(List<BoardPosition> board) {
-
+    public void announceCrossWon(State state) {
+        console.printConsoleScreen("Winner: X!");
     }
 
     @Override
-    public void announceDraw(List<BoardPosition> board) {
+    public void announceNaughtWon(State state) {
+        console.printConsoleScreen("Winner: O!");
+    }
 
+    @Override
+    public void announceDraw(State state) {
+        console.printConsoleScreen("Draw!");
     }
 }

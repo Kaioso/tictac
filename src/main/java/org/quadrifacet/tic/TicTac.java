@@ -11,7 +11,8 @@ public class TicTac
         Console console = new Console();
         ConsoleStatusAnnouncer p = new ConsoleStatusAnnouncer(console);
         ConsoleReader r = new ConsoleReader(console);
-        Game game = new Game(p, r);
+        ConsoleWinAnnouncer w = new ConsoleWinAnnouncer(console);
+        Game game = new Game(new Presentation(p, r, w));
         game.run();
     }
 }

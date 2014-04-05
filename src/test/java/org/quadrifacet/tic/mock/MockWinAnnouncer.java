@@ -1,9 +1,7 @@
 package org.quadrifacet.tic.mock;
 
-import org.quadrifacet.tic.BoardPosition;
+import org.quadrifacet.tic.State;
 import org.quadrifacet.tic.WinAnnouncer;
-
-import java.util.List;
 
 public class MockWinAnnouncer implements WinAnnouncer {
     public boolean gameDrawed = false;
@@ -11,17 +9,17 @@ public class MockWinAnnouncer implements WinAnnouncer {
     public boolean naughtWon = false;
 
     @Override
-    public void announceCrossWon(List<BoardPosition> board) {
+    public void announceCrossWon(State state) {
         crossWon = true;
     }
 
     @Override
-    public void announceNaughtWon(List<BoardPosition> board) {
+    public void announceNaughtWon(State state) {
         naughtWon = true;
     }
 
     @Override
-    public void announceDraw(List<BoardPosition> board) {
+    public void announceDraw(State state) {
         gameDrawed = true;
     }
 }

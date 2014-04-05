@@ -1,6 +1,5 @@
 package org.quadrifacet.tic;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -11,11 +10,6 @@ public class Game {
     protected TicTacAI ai;
     protected Board board;
     protected String playerTurn;
-
-    public Game(StatusAnnouncer presenter, InputReader reader) {
-        this.reader = reader;
-        this.presenter = presenter;
-    }
 
     public Game(Presentation presentation) {
         this.reader = presentation.getReader();
@@ -61,16 +55,29 @@ public class Game {
 
     protected void initializeGameActors() {
         this.board = new Board();
-        this.victory = new VictoryCondition(board, winAnnouncer);
+        this.victory = new VictoryCondition();
         this.ai = new TicTacAI(board);
     }
 
     private void loopGame() {
-        while (!victory.winConditionsSatisfied()) {
+        while (!winConditionSatisfied()) {
             presenter.displayGameState(getState());
             IndexedBoardPosition move = getNextMove();
             board.play(move.getIndex());
         }
+    }
+
+    private boolean winConditionSatisfied() {
+        State state = getState();
+        if (victory.isDraw(board))
+            winAnnouncer.announceDraw(state);
+        else if (victory.didCrossWin(board))
+            winAnnouncer.announceCrossWon(state);
+        else if (victory.didNaughtWin(board))
+            winAnnouncer.announceNaughtWon(state);
+        else
+            return false;
+        return true;
     }
 
     private State getState() {
@@ -85,7 +92,7 @@ public class Game {
 
     private IndexedBoardPosition getNextMove() {
         if (isPlayerTurn())
-            return getUserMove(board);
+            return getUserMove();
         else
             return new IndexedBoardPosition(ai.bestMove());
     }
@@ -95,7 +102,7 @@ public class Game {
                 board.isNaughtTurn() && playerTurn.equals("O");
     }
 
-    private IndexedBoardPosition getUserMove(Board board) {
+    private IndexedBoardPosition getUserMove() {
         State state = getState();
         List<BoardPosition> openMoves = state.getOpenPositions();
         IndexedBoardPosition move = (IndexedBoardPosition) reader.getNextPosition(state);
@@ -103,13 +110,6 @@ public class Game {
             move = (IndexedBoardPosition) reader.tryAgainInvalidMove(getState());
         }
         return move;
-    }
-
-    private List<BoardPosition> movesAsBoardPositions(List<Integer> possibleMoves) {
-        List<BoardPosition> moves = new ArrayList<BoardPosition>();
-        for (Integer move : possibleMoves)
-            moves.add(new IndexedBoardPosition(move));
-        return moves;
     }
 
     private class GameTerminated extends RuntimeException {}

@@ -19,12 +19,12 @@ public class TicTacAI {
     }
 
     public int score(Board board, int depth) {
-        VictoryCondition victoryCondition = new VictoryCondition(board);
-        if (victoryCondition.didNaughtWin())
+        VictoryCondition victoryCondition = new VictoryCondition();
+        if (victoryCondition.didNaughtWin(board))
             return -100;
-        else if (victoryCondition.didCrossWin())
+        else if (victoryCondition.didCrossWin(board))
             return 100;
-        else if (victoryCondition.isDraw())
+        else if (victoryCondition.isDraw(board))
             return 0;
         else {
             List<Integer> results = new ArrayList<Integer>();
@@ -46,8 +46,10 @@ public class TicTacAI {
 
     public int bestMove() {
         List<int[]> results = new ArrayList<int[]>();
-        for (Integer position : gameBoard.getOpenPositions())
-            results.add(new int[]{position, score(gameBoard.predictedPlay(position))});
+        List<BoardPosition> board = gameBoard.getBoard();
+        for (int i = 0; i < board.size(); i++)
+            if (board.get(i).isEmptyPosition())
+                results.add(new int[]{i, score(gameBoard.predictedPlay(i))});
 
         int[] bestPosition = null;
         for (int[] result : results)

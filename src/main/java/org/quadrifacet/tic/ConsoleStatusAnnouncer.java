@@ -35,6 +35,7 @@ public class ConsoleStatusAnnouncer implements StatusAnnouncer {
             for (BoardPosition item : row) {
                 places += positionAsString(item) + " ";
                 positionNumbers += item.isEmptyPosition() ? String.valueOf(j) + " " : "- ";
+                j++;
             }
             display += places + " " + positionNumbers + "\n\n";
         }

@@ -56,7 +56,7 @@ public class BoardTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         game = new Board();
-        victory = new VictoryCondition(game);
+        victory = new VictoryCondition();
     }
 
     public void testMove_ErrorsOnInputTooLow() throws Exception {
@@ -79,8 +79,8 @@ public class BoardTest extends TestCase {
 
     public void testMove_ErrorsOnNonEmptySpace() throws Exception {
         try {
-            game.play(9);
-            game.play(9);
+            game.play(8);
+            game.play(8);
             fail();
         } catch (Board.AlreadyChosen e) {
             // Good... Good...
@@ -88,46 +88,41 @@ public class BoardTest extends TestCase {
     }
 
     public void testMove() throws Exception {
-        game.play(1);
-        game.play(3);
+        game.play(0);
+        game.play(2);
         assertEquals("X - O - - - - - -", boardAsString(game.getBoard()));
     }
 
     public void testOpenPositions() throws Exception {
-        game.play(1);
-        game.play(5);
-        game.play(3);
-        assertEquals(Arrays.asList(2, 4, 6, 7, 8, 9), game.getOpenPositions());
+        game.play(0);
+        game.play(4);
+        game.play(2);
+        assertEquals(Arrays.asList(1, 3, 5, 6, 7, 8), game.getOpenPositions());
     }
 
     public void testKnowsWhenGameIsOver() throws Exception {
-        assertFalse(victory.didCrossWin());
-        assertFalse(victory.didNaughtWin());
+        assertFalse(victory.didCrossWin(Board.fromString("- - - - - - - - -", "X")));
+        assertFalse(victory.didNaughtWin(Board.fromString("- - - - - - - - -", "X")));
     }
 
     public void testWinsOnRows() throws Exception {
-        VictoryCondition rowOne = new VictoryCondition(Board.fromString("X X X - - - - - -", "X"));
-        VictoryCondition rowTwo = new VictoryCondition(Board.fromString("- - - X X X - - -", "X"));
-        VictoryCondition rowThree = new VictoryCondition(Board.fromString("- - - - - - X X X", "X"));
-        assertTrue(rowOne.didCrossWin());
-        assertTrue(rowTwo.didCrossWin());
-        assertTrue(rowThree.didCrossWin());
+        VictoryCondition victory = new VictoryCondition();
+        assertTrue(victory.didCrossWin(Board.fromString("X X X - - - - - -", "X")));
+        assertTrue(victory.didCrossWin(Board.fromString("- - - X X X - - -", "X")));
+        assertTrue(victory.didCrossWin(Board.fromString("- - - - - - X X X", "X")));
     }
 
     public void testWinsOnColumns() throws Exception {
-        VictoryCondition colOne = new VictoryCondition(Board.fromString("O - - O - - O - -", "O"));
-        VictoryCondition colTwo = new VictoryCondition(Board.fromString("- O - - O - - O -", "O"));
-        VictoryCondition colThree = new VictoryCondition(Board.fromString("- - O - - O - - O", "O"));
-        assertTrue(colOne.didNaughtWin());
-        assertTrue(colTwo.didNaughtWin());
-        assertTrue(colThree.didNaughtWin());
+        VictoryCondition victory = new VictoryCondition();
+        assertTrue(victory.didNaughtWin(Board.fromString("O - - O - - O - -", "O")));
+        assertTrue(victory.didNaughtWin(Board.fromString("- O - - O - - O -", "O")));
+        assertTrue(victory.didNaughtWin(Board.fromString("- - O - - O - - O", "O")));
     }
 
     public void testWinsOnDiagonals() throws Exception {
-        VictoryCondition colOne = new VictoryCondition(Board.fromString("O - - - O - - - O", "O"));
-        VictoryCondition colTwo = new VictoryCondition(Board.fromString("- - O - O - O - -", "O"));
-        assertTrue(colOne.didNaughtWin());
-        assertTrue(colTwo.didNaughtWin());
+        VictoryCondition victory = new VictoryCondition();
+        assertTrue(victory.didNaughtWin(Board.fromString("O - - - O - - - O", "O")));
+        assertTrue(victory.didNaughtWin(Board.fromString("- - O - O - O - -", "O")));
     }
 
     public void testEndpointScores() throws Exception {
@@ -152,7 +147,7 @@ public class BoardTest extends TestCase {
     public void testBestMove() throws Exception {
         TicTacAI taiCrossAboutToWin = new TicTacAI(Board.fromString("X X - - - - - - -", "X"));
         TicTacAI taiNaughtAboutToWin = new TicTacAI(Board.fromString("O - - O - - - - -", "O"));
-        assertEquals(3, taiCrossAboutToWin.bestMove());
-        assertEquals(7, taiNaughtAboutToWin.bestMove());
+        assertEquals(2, taiCrossAboutToWin.bestMove());
+        assertEquals(6, taiNaughtAboutToWin.bestMove());
     }
 }

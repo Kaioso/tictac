@@ -3,49 +3,20 @@ package org.quadrifacet.tic;
 import java.util.List;
 
 public class VictoryCondition {
-    private final Board gameBoard;
-    String winner = "";
-    private WinAnnouncer winAnnouncer;
 
-    public VictoryCondition(Board gameBoard) {
-        this.gameBoard = gameBoard;
+    public boolean didCrossWin(Board gameBoard) {
+        return isWinFor("X", gameBoard);
     }
 
-    public VictoryCondition(Board gameBoard, WinAnnouncer winAnnouncer) {
-        this.gameBoard = gameBoard;
-        this.winAnnouncer = winAnnouncer;
+    public boolean didNaughtWin(Board gameBoard) {
+        return isWinFor("O", gameBoard);
     }
 
-    public boolean winConditionsSatisfied() {
-        if (isDraw()) {
-            if (winAnnouncer != null)
-                winAnnouncer.announceDraw(gameBoard.getBoard());
-        } else if (gameBoard.isCrossTurn() && didCrossWin()) {
-            if (winAnnouncer != null)
-                winAnnouncer.announceCrossWon(gameBoard.getBoard());
-        } else if (gameBoard.isNaughtTurn() && didNaughtWin()) {
-            if (winAnnouncer != null)
-                winAnnouncer.announceNaughtWon(gameBoard.getBoard());
-        } else
-            return false;
-        return true;
+    public boolean isDraw(Board gameBoard) {
+        return !didCrossWin(gameBoard) && !didNaughtWin(gameBoard) && gameBoard.getOpenPositions().isEmpty();
     }
 
-    public boolean didCrossWin() {
-        return isWinFor("X");
-    }
-
-    public boolean didNaughtWin() {
-        return isWinFor("O");
-    }
-
-    public boolean isDraw() {
-        return !didCrossWin() && !didNaughtWin() && gameBoard.getOpenPositions().isEmpty();
-    }
-
-    private boolean isWinFor(String turn) {
-        if (!winner.isEmpty())
-            return turn.equals(winner);
+    private boolean isWinFor(String turn, Board gameBoard) {
 
         boolean won = false;
         List<String[]> currentRows = gameBoard.rows();
